@@ -21,6 +21,7 @@ export default function Home() {
     // })
     const [chosenCard, setChosenCard] = useState([]);
     const [random, setRandom] = useState(1);
+    var unique = [...new Set(chosenCard)];
 
     // console.log("random number ::::", random);
 
@@ -40,8 +41,14 @@ export default function Home() {
         return item.id === random
     })
 
+    // const existed = chosenCard.find((item) => {
+    //     return item === item;
+    // })
+    // console.log("existed", existed);
 
-    console.log("find", pok);
+
+    // console.log("find", pok);
+    console.log("chosencard", chosenCard);
     // console.log("pokisss", pokimons);
 
 
@@ -52,7 +59,7 @@ export default function Home() {
                     return (
                         <div key={i} >
                             {/* <input type="radio" /> */}
-                            <Cart chosenCard={chosenCard} className="cards" />
+                            <Cart chosenCard={unique} className="cards" />
                         </div>
                     )
                 })}
@@ -77,7 +84,7 @@ export default function Home() {
                     )
                 })} */}
                 {pok &&
-                    <div className="card border border-3 border-warning" style={{ width: "15rem", height: "20rem", backgroundColor: pok.background_color }}>
+                    <div onClick={() => { setChosenCard(oldarr => [...oldarr, pok]) }} className="card border border-3 border-warning" style={{ width: "15rem", height: "23rem", backgroundColor: pok.background_color }}>
                         <div className='p-3'>
                             {/* upp part of cards  */}
                             <div className='d-flex justify-content-between'>
@@ -91,16 +98,20 @@ export default function Home() {
                                 </div>
                             </div>
                             {/* description part */}
-                            <div className="pt-2">
-                                <div className='d-flex justify-content-between'>
-                                    <div className='d-flex '>
-                                        <span style={{ fontSize: "small" }}>{pok.abilities[0].icon}</span>
-                                        <p className='fw-semibold ps-2'>{pok.abilities[0].name}</p>
+                            {pok.abilities.map((items, i) => {
+                                return (
+                                    <div key={i} className="pt-2">
+                                        <div className='d-flex justify-content-between'>
+                                            <div className='d-flex '>
+                                                <span style={{ fontSize: "small" }}>{items.icon}</span>
+                                                <p className='fw-semibold ps-2'>{items.name}</p>
+                                            </div>
+                                            <p className='fw-semibold'>{items.power}</p>
+                                        </div>
+                                        <p className="card-text" style={{ fontSize: "xx-small" }}>{items.description}</p>
                                     </div>
-                                    <p className='fw-semibold'>{pok.abilities[0].power}</p>
-                                </div>
-                                <p className="card-text" style={{ fontSize: "xxl-small" }}>{pok.abilities[0].description}</p>
-                            </div>
+                                )
+                            })}
                         </div>
                     </div>}
 
@@ -115,7 +126,7 @@ export default function Home() {
                     return (
                         <div key={i} >
                             {/* <input type="radio" /> */}
-                            <Cart chosenCard={chosenCard} className="cards" />
+                            <Cart chosenCard={unique} className="cards" />
                         </div>
                     )
                 })}

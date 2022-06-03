@@ -1,29 +1,17 @@
 import React, { useEffect, useState } from 'react';
 import Cart from './Cart';
 import "./home.css";
-// import fondCart from "../images/fond-carte.jpg";
 import LOGO from "../images/logo.png";
+// import LogoInoki from "../images/logo_enoki.svg";
 import axios from "axios";
 
 export default function Home() {
     const [pokimons, setPokimons] = useState([]);
-    // const [pokData, setPokData] = useState({
-    //     name: "",
-    //     mark: "",
-    //     power: "",
-    //     imag: "",
-    //     titreA: "",
-    //     numbreA: "",
-    //     descriptionA: "",
-    //     titreB: "",
-    //     numberB: "",
-    //     descriptionB: "",
-    // })
     const [chosenCard, setChosenCard] = useState([]);
     const [random, setRandom] = useState(1);
-    var unique = [...new Set(chosenCard)];
-
-    // console.log("random number ::::", random);
+    const [start, setStart] = useState(false);
+    const [timer, setTimer] = useState(15);
+    const unique = [...new Set(chosenCard)];
 
     useEffect(() => {
         axios.get("https://pokeapi-enoki.netlify.app/").then((res) => {
@@ -32,6 +20,49 @@ export default function Home() {
             setPokimons(pokemonData);
         })
     }, [])
+
+    useEffect(() => {
+        if (start) {
+            setTimeout(() => setRandom(randomNumber), 1000);
+            const time = setInterval(() => {
+                TimePass();
+            }, 1000);
+            if (timer === 0) {
+                setStart(false);
+                setTimeout(() => {
+                    window.confirm("le temps est fini ! \non va redemarer le jeu à nouveau !");
+                    setTimer(15);
+                    setChosenCard([]);
+                }, 1000)
+                clearTimeout();
+            }
+            if (unique.length === 6) {
+                setStart(false);
+                setTimeout(() => {
+                    window.confirm("Bravo ! vous avez choisi tout vous equipe \nredemarez le jeu SVP ! !");
+                    // setChosenCard([]);
+                    // unique = [];
+                    // window.location.reload();
+                }, 500);
+                clearTimeout();
+            }
+            return () => {
+                clearTimeout();
+                clearInterval(time);
+            }
+        }
+        if (!start) {
+            clearTimeout();
+            clearInterval()
+        }
+
+    }, [timer, start, unique.length])
+    function TimePass() { return setTimer(a => a - 1) };
+    // (s - (s %= 60)) / 60 + (9 < s && s)
+
+
+
+
 
     function randomNumber() {
         return Math.floor(Math.random() * 11) + 1;
@@ -45,46 +76,42 @@ export default function Home() {
     //     return item === item;
     // })
     // console.log("existed", existed);
+    // console.log("unique", unique);
 
-
-    // console.log("find", pok);
-    console.log("chosencard", chosenCard);
+    // console.log("chosencard", chosenCard);
     // console.log("pokisss", pokimons);
-
 
     return (
         <div className='home-page'>
-            <section className='premier-sec'>
-                {[...Array(3)].map((card, i) => {
+            {/* <div>
+                <img src="./logo512.png" alt="logo-enoki" />
+            </div> */}
+            {/* {unique.length <= 1 && unique.map((card, i) => {
                     return (
-                        <div key={i} >
-                            {/* <input type="radio" /> */}
-                            <Cart chosenCard={unique} className="cards" />
-                        </div>
+                        <Cart pok={card} key={i} />
                     )
-                })}
+                })} */}
+            <section className='premier-sec'>
+                <div className='back-cards'>
+                    <h2 className="cards-number" >1</h2>
+                    {unique && <Cart pok={unique[0]} />}
+                </div>
+                <div className='back-cards'>
+                    <h2 className="cards-number" >2</h2>
+                    {unique && <Cart pok={unique[1]} />}
+                </div>
+                <div className='back-cards'>
+                    <h2 className="cards-number" >3</h2>
+                    {unique && <Cart pok={unique[2]} />}
+                </div>
             </section>
 
             <section className='deux-sec'>
+                {/* logo */}
                 <img src={LOGO} alt="logo" width={300} height={100} />
-                {/* {pokimons && pokimons.slice(0, random).map((pok, j) => {
-                    return (
-                        <div key={j} className="card" style={{ width: "17rem", height: "19rem" }}>
-                            <div className='d-flex justify-content-between ps-2 pe-2'><h4>{pok.name}</h4> <h4>{pok.level} </h4></div>
-                            <div className='p-3'>
-                                <div className="fond-cards">
-                                    <img src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/${pok.id}.png`} alt="avatar" width={200} height={150} />
-                                </div>
-                            </div>
-                            <div className="card-body">
-                                <h5 className="card-title">Title {j}</h5>
-                                <p className="card-text"></p>
-                            </div>
-                        </div>
-                    )
-                })} */}
+                {/* carte */}
                 {pok &&
-                    <div onClick={() => { setChosenCard(oldarr => [...oldarr, pok]) }} className="card border border-3 border-warning" style={{ width: "15rem", height: "23rem", backgroundColor: pok.background_color }}>
+                    <div onClick={() => { setChosenCard(oldarr => [...oldarr, pok]) }} className="card home-card border border-3 border-warning" style={{ width: "15rem", height: "23rem", backgroundColor: pok.background_color }}>
                         <div className='p-3'>
                             {/* upp part of cards  */}
                             <div className='d-flex justify-content-between'>
@@ -114,22 +141,27 @@ export default function Home() {
                             })}
                         </div>
                     </div>}
-
+                {/* buttons  */}
                 <div className='buttons'>
-                    <button onClick={() => setRandom(randomNumber)} className='btn btn-warning'>Lancer</button>
-                    <button className='btn btn-danger'>Stop</button>
+                    <button onClick={() => { setRandom(randomNumber); setStart(true) }} className='btn btn-warning'>Lancer</button>
+                    <button disabled={!start} onClick={() => { setStart(false) }} className='btn btn-danger'>Stop ({timer}) </button>
+                    <button type='reset' onClick={() => { setChosenCard([]); setTimer(15) }} className='btn btn-secondary'>Redemarez </button>
                 </div>
             </section>
 
             <section className='premier-sec'>
-                {[...Array(3)].map((card, i) => {
-                    return (
-                        <div key={i} >
-                            {/* <input type="radio" /> */}
-                            <Cart chosenCard={unique} className="cards" />
-                        </div>
-                    )
-                })}
+                <div className='back-cards'>
+                    <h2 className="cards-number" >4</h2>
+                    {unique && <Cart pok={unique[3]} />}
+                </div>
+                <div className='back-cards'>
+                    <h2 className="cards-number" >5</h2>
+                    {unique && <Cart pok={unique[4]} />}
+                </div>
+                <div className='back-cards'>
+                    <h2 className="cards-number" >6</h2>
+                    {unique && <Cart pok={unique[5]} />}
+                </div>
             </section>
 
         </div>
